@@ -1,0 +1,8 @@
+RewriteEngine on
+
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+Options All -Indexes
+
+RewriteCond %{REQUEST_URI} !^/(bootstrap)\.php$
+RewriteRule (.*) /bootstrap.php [L]
