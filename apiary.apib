@@ -1,0 +1,1157 @@
+FORMAT: 1A
+HOST: https://ship.dogeat.ru/
+
+# Ship API
+
+API драйвера служб доставки. Приводит API служб доставки PickPoint, DPD, EasyWay к общему виду.
+
+Тестовый доступ:
+- Логин: test
+- Пароль: test
+
+YWRtaW46JEFyc2VuaXkxJA==
+
+## Group Cправочники и информация
+## Получение списка методов [/{shipService}/info/methodsList/]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+
+### /info/methodsList [GET]
+
+Команда предназначена для получения списка методов API.
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        [
+            {
+                "method": "<Название метода>",
+                "active": "<Работает ли метод для данной службы (true/false)>"
+            }
+        ]
+## Получение списка городов [/{shipService}/info/cityList/?cityName={cityName}&regionName={regionName}&kladr={kladr}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + cityName (optional, string, `Екатеринбург`) ... Получить данные конкретного города
+    + regionName (optional, string, `Свердловская обл.`) ... Получить города указаного региона
+    + kladr (optional, string, `6600000100000`) ... Получить город по его КЛАДР
+
+### /info/cityList [GET]
+
+Команда предназначена для получения списка городов
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        [
+            {
+                "Id": "<Id города>",
+                "Owner_Id": "<Owner_id города>",
+                "name": "<название города>",
+                "RegionName": "<название региона города>",
+                "RegionId": "<ИД региона города>",
+                "kladr": "<КЛАДР города>"
+            }
+        ]
+
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+
+## Получение списка точек самовывоза [/{shipService}/info/parcelShopsList/?cityName={cityName}&regionName={regionName}&weight={weight}&size={size}&payment={payment}&number={number}&tariff={tariff}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + cityName (optional, string, `Екатеринбург`) ... Город назаначения
+    + regionName (optional, string, `Свердловская обл.`) ... Регион назначения
+    + weight (optional, string, `1`) ... Вес отправления в кг.
+    + size (optional, string, `100`) ... Размер отправления, сумма сторон в кг.
+    + payment (optional, string, `Cash`) ... Способ оплаты (Cash или Card)
+    + number (optional, string, `6601-001`) ... Номер пункта самовывоза
+    + tariff (optional, string, `29`) ... ИД тарифа
+
+### /info/parcelShopsList [GET]
+
+Команда предназначена для получения списка постаматов в режиме «рабочий». Если постамат не может принять отправления или закрывается, он пропадает из данного списка. Список точек необходимо актуализировать 1 раз в сутки. 
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+            
++ Response 200 (application/json)
+
+        [
+            {
+                "Id": "<Id постамата (целое число)>",
+                "OwnerId": "<Owner_id постамата (целое число)>",
+                "tariffs": "<список тарифов поддерживающих этот ПВЗ (если нет, подходит для всех тарифов)>",
+                [
+                 "id тарифа",
+                 "id тарифа"
+                ],
+                "CitiId": "<Id города (целое число)>",
+                "CitiOwnerId": "<Owner_id города (целое число)>",
+                "CitiName": "<Название города (50 символов)>",
+                "Region": "<Название региона (50 символов)>",
+                "CountryName": "<Название страны (50 символов)>",
+                "Number": "<номер постамат, (PTNumber) текст (8 символов)>",
+                "Metro": "<название ближайшей станция метро  (100 символов)>",
+                "MetroArray": "<список ближайших станций метро в виде массива>",
+                [
+                 "метро 1 (50 символов)",
+                 "метро n (50 символов)"
+                ],
+                "IndoorPlace": "<описание входа к постамату (255 символов)>",
+                "Address": "<адрес расположения постамата (150 символов)>",
+                "Street": "<улица (150 символов)>",
+                "House": "<номер дома (150 символов)>",
+                "PostCode": "<почтовый индекс (20 символов)>",
+                "name": "<название (80 символов)>",
+                "Phone": "<телефон постомата>",
+                "WorkTime": "<интервалы рабочего времени постамата >",
+                "Latitude": "<Широта>",
+                "Longitude": "<Долгота>",
+                "Status": "<Статус постамата: 1 – новый, 2 – рабочий, 3 - закрытый>",
+                "TypeTitle": "<Тип терминала: АПТ/ПВЗ>",
+                "Cash": "<Возможность оплаты наличными: 0 – нет, 1 – да>",
+                "Card": "<Возможность оплаты пластиковой картой: 0 – нет, 1 –да>",
+                "AmountTo": "<Максимаьная сумма оплаты>",
+                "InDescription": "<Полное описание местонахождения терминала внутри (8000 символов)>",
+                "OutDescription": "<Полное описание местонахождения терминала снаружи (8000 символов)>",
+                "MaxSize": "<текстовое описание максимального размера одного из видов: 36х36х60, max сумма 3х измерений - 132 см>",
+                "MaxWeight": "<текстовое описание максимального веса отправления вида: 5 кг>",
+                "WorkHourly": "<true/false – работает круглосуточно>",
+                "Opening": "<true/false – разрешено вскрытие>",
+                "Returning": "<true/false – возможен возврат>",
+                "Fitting": "<true/false – возможна примерка>",
+                "LocationType": "<тип размещения – 1 – в помещении, 2 – на улице>"
+                "OwnerName": "<название сети постаматов (100 символов)>",
+                "BuildingType": "<название типа строения, в котором расположена точка>",
+                "Comment": "<комментарий>"
+            }
+        ]
+    
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+
+## Получение списка тарифов [/{shipService}/info/tariffList/]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+
+### /info/tariffList [GET]
+
+Команда предназначена для получения спискатарифов службы доставки.
+
+Режимы доставки:
+
+Д–Д (дверь-дверь) Курьер забирает груз у отправителя и доставляет получателю на указанный адрес.
+
+Д–С (дверь-склад) Курьер забирает груз у отправителя и довозит до склада, получатель забирает груз самостоятельно в ПВЗ (самозабор).
+
+С–Д (склад-дверь) Отправитель доставляет груз самостоятельно до склада, курьер доставляет получателю на указанный адрес.
+
+С–С (склад-склад) Отправитель доставляет груз самостоятельно до склада, получатель забирает груз самостоятельно в ПВЗ (самозабор).
+
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "<ИД тарифа>",
+                "name": "<Название тарифа*>",
+                "mode": "<Режим доставки>",
+                "confines": {
+                    "weight": "<Ограничение по весу, кг>",
+                    "minWeight": "<Минимальный вес, кг>",
+                    "length": "<Ограничение по длине, см>",
+                    "depth": "<Ограничение по высоте, см>",
+                    "width": "<Ограничение по ширине, см>"
+                },
+                "type": "<Тип услуги>",
+                "description": "<Описание услуги>"
+            }
+        ]
+        
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+
+## Получение списка статусов [/{shipService}/info/statusList/]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+
+### /info/statusList [GET]
+
+Команда предназначена для получения списка возможных статусов отправлений.
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        [
+            {
+                "State": "<номер статута>",
+                "StateText": "<текстовое описание статуса>"
+            }
+        ]
+        
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+
+## Получение списка ошибок [/{shipService}/info/errorList/]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+
+### /info/errorList [GET]
+
+Команда предназначена для получения списка возможных ошибок.
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        [
+            {
+                "Error": "<Код ошибки>",
+                "ErrorText": "<тестовое сообщение ошибки>"
+            }
+        ]
+
+
+
+## Group Работа с отправлениями
+## Расчёт стоимости доставки [/{shipService}/order/getCost/?fromCity={fromCity}&fromRegion={fromRegion}&toCity={toCity}&toRegion={toRegion}&index={index}&toPoint={toPoint}&length={length}&depth={depth}&width={width}&weight={weight}&count={count}&declaredValue={declaredValue}&invoiceNumber={invoiceNumber}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + fromCity (required, string, `Москва`) ... Город сдачи отправления
+    + fromRegion (required, string, `Московская обл.`) ... Регион города сдачи отправления
+    + toCity (optional, string, `Екатеринбург`) ... Город доставки
+    + toRegion (optional, string, `Свердловская обл.`) ... Регион города доставки
+    + index (optional, string, `620000`) ... Индекс города доставки
+    + toPoint (optional, string, `6602-007`) ... ИД точки самовывоза
+    + length (optional, string, `10`) ... Длина отправления, см
+    + depth (optional, string, `10`) ... Глубина отправления, см
+    + width (optional, string, `10`) ... Ширина отправления, см
+    + weight (optional, string, `1`) ... Вес отправления, кг
+    + count (optional, number, `1`) ... Количество мест, по умолчанию одно
+    + declaredValue (optional, number, `1000`) ... Декларируемая стоимость
+    + invoiceNumber (optional, string) ... Номер отправления
+
+### /order/getCost [GET]
+
+Команда предназначена для получения стоимости доставки
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        [
+            {
+                "name": "<Наименование тарифа>",
+                "id": "<ИД тарифа>",
+                "DPMin": "<Минимальный срок доставки>",
+                "DPMax": "<Максимальный срок доставки>",
+                "Cost": "<Стоимость доставки по тарифу>",
+                "info": {
+                    "<Дополнительные данные>"
+                }
+            }
+            
+        ]
+        
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+        
+## Создание заказа на доставку [/{shipService}/order/create/]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+
+### /order/create [POST]
+
+Команда предназначена для регистрации одноместных и многоместных отправлений
+
+    {Пример запроса}
+    
+        [
+            {
+                "orderNumber": "НФ-1234",
+                "description": "Зоотовары",
+                "declaredValue": "1000",
+                "tariff": 1,
+                "Pickup": {
+                    "fromCity": "Москва",
+                    "fromRegion": "Московская обл.",
+                    "selfPickup": true
+                },
+                "payOnDelivery": true,
+                "payment": "card",
+                "recipient": {
+                    "name": "Тестовый клиент",
+                    "phone": "89120000000",
+                    "email": "test@test.test"
+                },
+                "toPoint": "6602-007",
+                "cargoCount": 1,
+                "Places": [
+                    {
+                        "Width": 10,
+                        "Height": 10,
+                        "Depth": 10,
+                        "Weight": 1,
+                        "SubEncloses": [
+                            {
+                                "GoodsCode": 123,
+                                "Price": 1000,
+                                "Weight": 10,
+                                "count": 1,
+                                "name": "Тест"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+        
+    
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+    + Body
+
+            [
+                {
+                    "orderNumber": "<Внутрений номер заказа магазина>",
+                    "invoiceNumber": "<Номер отправления>",
+                    "description": "<Описание вложимого отправления, обязательное поле>",
+                    "declaredValue": "<Объявленная ценность>",
+                    "tariff": "<ИД тарифа>",
+                    "Pickup": {
+                        "fromCity": "<Город сдачи отправления>",
+                        "fromRegion": "<Регион города сдачи отправления>",
+                        "selfPickup": "<Самопривоз (иначе вызов курьера службы доставки), true/false>",
+                        "date": "<Дата приёма груза>",
+                        "FIO": "<Контактное лицо>",
+                        "phone": "<Контактный телфон>",
+                        "Address": {
+                            "index": "<Почтовый индекс>",
+                            "country": "<Название страны>",
+                            "region": "<Регион города доставки>",
+                            "city": "<Город доставки>",
+                            "street": "<Улица доставки>",
+                            "building": "<Дом>",
+                            "Housing": "<Строение>",
+                            "Apartment": "<Квартира/офис>",
+                            "Porch": "<Подезд>",
+                            "Floor": "<Этаж>",
+                            "Info": "<Доп. Информация>"
+                        }
+                    },
+                    "payOnDelivery": "<Наложенный платеж, true/false>",
+                    "payment": "<Способ оплаты, card/cash>",
+                    "recipient": {
+                        "name": "<Имя получателя>",
+                        "phone": "<Телефон получателя>",
+                        "email": "<E-mail получателя>"
+                    },
+                    "toPoint": "<ИД точки самовывоза>",
+                    "Address": {
+                        "index": "<Почтовый индекс>",
+                        "country": "<Название страны>",
+                        "region": "<Регион города доставки>",
+                        "city": "<Город доставки>",
+                        "street": "<Улица доставки>",
+                        "building": "<Дом>",
+                        "Housing": "<Строение>",
+                        "Apartment": "<Квартира/офис>",
+                        "Porch": "<Подезд>",
+                        "Floor": "<Этаж>",
+                        "Info": "<Доп. Информация>"
+                    },
+                    "cargoCount": "<Количество грузомест>",
+                    "Places": [
+                        {
+                            "Width": "<Ширина, обязательное поле, см>",
+                            "Height": "<Высота, обязательное поле, см>",
+                            "Depth": "<Глубина, обязательное поле, см>",
+                            "Weight": "<Вес отправления, обязательное поле, кг>",
+                            "SubEncloses": [
+                                {
+                                    "GoodsCode": "<Код товара>",
+                                    "Weight": "<Вес одного товара>",
+                                    "name": "<Наименование>",
+                                    "count": "<Количество>",
+                                    "Price": "<Цена одного товара>"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        
++ Response 200 (application/json)
+        
+        {
+            "CreatedSendings": [
+                {
+                    "EDTN": "< Значение идентификатора запроса (50 символов)>",
+                    "invoiceNumber": "<Номер отправления присвоенный системой (20 символов)>",
+                    "Barcode": "<Штрих код от системы (50 символов, геренируется, если не было во входящем запросе)>",
+                    "orderNumber": "Внутрений номер заказа магазина"
+                }
+            ],
+            "RejectedSendings": [
+                {
+                    "EDTN": "<Значение идентификатора запроса (50 символов)>",
+                    "ErrorCode": "<Код ошибки, цифра>",
+                    "ErrorMessage": "<Описание ошибки (200 символов)>"
+                }
+            ]
+        }
+        
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+
+
+## Отслеживание статуса и информация о доставке [/{shipService}/order/getInfo/?orderNumber={orderNumber}&invoiceNumber={invoiceNumber}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + orderNumber (optional, string, `НФ-1234`) ... Внутрений номер заказа магазина
+    + invoiceNumber (optional, string) ... Номер отправления
+
+### /order/getInfo [GET]
+
+Команда предназначена для получения статуса отправления. В запросе отправляется идентификатор в службе доставки (invoiceNumber) либо внутрений номер заказа в магазине (orderNumber).
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        {
+            "status": {
+                "State": "<код статуса>",
+                "ChangeDT": "<дата изменения статуса>",
+                "StateMessage": "<описание статуса>"
+            },
+            "info": {
+                "invoiceNumber": "<Номер отправления в системе>",
+                "SenderInvoiceNumber": "<Номер отправления магазина>",
+                "Sum": "<сумма за отправление>"
+                "CreateDate": "<дата создания отправления>",
+                "FIO": "<ФИО получателя>",
+                "StorageDate": "<Срок хранения, если отправление еще не заложено, то пустое поле>",
+                "Prolonged": "<true/false – было или нет продление>",
+                "Barcodes": [
+                    "<штрих-код отправления>"
+                ],
+                "RefundInfo <Информация по возврату денег>": {
+                    "RefundDate": "<Дата создания акта возврата денег>",
+                    "RefundNumber": "<Номер акта возврата>",
+                    "PaymentNumber": "<Номер платежного поручения>",
+                    "Sum": "<Сумма перечисления>",
+                    "AgencyFee": "<Сумма агентского вознаграждения>"
+                },
+                "ReturnInfo <Информация по возврату товара>": {
+                    "ReturnDocumentDate": "<Дата создания реестра возврата денег>",
+                    "ReturnDocumentNumber": "<Номер реестра возврата>",
+                    "ReturnInvoiceNumber": "<Номер возвратного отправления>",
+                    "ReturnDeliveryDate": "<Дата доставки возврата>",
+                    "ReturnFromCity": "<Город отправки возврата>",
+                    "ReturnAddress": "<Адрес доставки возврата>",
+                    "SubEncloses <Информация о субвложимых>": [
+                        {
+                            "Line": "<Номер>",
+                            "ProductCode": "<Код продукта>",
+                            "GoodsCode": "<Код товара>",
+                            "name": "<Наименование>",
+                            "Price": "<Стоимость>",
+                            "Return date": "<Дата возврата (физ. лицом)>",
+                            "Reason": "<Причина>"
+                        }
+                    ]
+                },
+                "ClientReturnAddress <Адрес клиентского возврата>": {
+                    "CityName": "<Название города>",
+                    "RegionName": "<Название региона>",
+                    "Address": "<Текстовое описание адреса>",
+                    "FIO": "<ФИО контактного лица>",
+                    "PostCode": "<Почтовый индекс>",
+                    "Organisation": "<Наименование организации>",
+                    "PhoneNumber": "<Контактный телефон>",
+                    "Comment": "<Комментарий>"
+                },
+                "UnclaimedReturnAddress <Адрес возврата невостребованного>": {
+                    "CityName": "<Название города>",
+                    "RegionName": "<Название региона>",
+                    "Address": "<Текстовое описание адреса>",
+                    "FIO": "<ФИО контактного лица>",
+                    "PostCode": "<Почтовый индекс>",
+                    "Organisation": "<Наименование организации>",
+                    "PhoneNumber": "<Контактный телефон>",
+                    "Comment": "<Комментарий>"
+                },
+                "ChequeNumber": "<номер чека, если несколько, то перечислены через запятую>",
+                "PayType": "<тип оплаты отправления cash/card>"
+            }
+        }
+        
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+        
+## Изменение заказа на доставку [/{shipService}/order/edit/?orderNumber={orderNumber}&invoiceNumber={invoiceNumber}&recipientName={recipientName}&recipientPhone={recipientPhone}&recipientEmail={recipientEmail}&declaredValue={declaredValue}&toPoint={toPoint}&addressIndex={addressIndex}&addressCountry={addressCountry}&addressRegion={addressRegion}&addressCity={addressCity}&addressStreet={addressStreet}&addressBuilding={addressBuilding}&addressHousing={addressHousing}&addressApartment={addressApartment}&addressPorch={addressPorch}&addressFloor={addressFloor}&addressInfo={addressInfo}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + orderNumber (optional, string, `НФ-1234`) ... Внутрений номер заказа магазина
+    + invoiceNumber (optional, string) ... Номер отправления
+    + recipientName (optional, string) ... Новое имя получателя
+    + recipientPhone (optional, string) ... Новый телефон получателя
+    + recipientEmail (optional, string) ... Новый email получателя
+    + declaredValue (optional, string) ... Новая стоимость отправления
+    + toPoint (optional, string) ... Новый номер постамата для доставки
+    + addressIndex (optional, string) ... Новый почтовый индекс в адресе доставки
+    + addressCountry (optional, string) ... Новая страна в адресе доставки
+    + addressRegion (optional, string) ... Новый регион города в адресе доставки
+    + addressCity (optional, string) ... Новый город в адресе доставки
+    + addressStreet (optional, string) ... Новая улица в адресе доставки
+    + addressBuilding (optional, string) ... Новый дом в адресе доставки
+    + addressHousing (optional, string) ... Новое строение в адресе доставки
+    + addressApartment (optional, string) ... Новая квартира/офис в адресе доставки
+    + addressPorch (optional, string) ... Новый подезд в адресе доставки
+    + addressFloor (optional, string) ... Новый этаж в адресе доставки
+    + addressInfo (optional, string) ... Новая доп. информации об адресе доставки
+
+### /order/edit [GET]
+
+Команда предназначена для изменения полей созданного отправления.
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        {
+            "invoiceNumber": "<Номер КО>",
+            "GCInvoiceNumber": "<Номер отправления клиента>",
+            "Results <Результаты обновления полей отправления>": [
+                {
+                    "FieldName": "<Имя поля для обновления>",
+                    "Updated": "<true/false>",
+                    "Comment": "<Текст ошибки>"
+                }
+            ]
+        }
+        
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+        
+
+## Отмена заказа на доставку [/{shipService}/order/cancel/?orderNumber={orderNumber}&invoiceNumber={invoiceNumber}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + orderNumber (optional, string, `НФ-1234`) ... Внутрений номер заказа магазина
+    + invoiceNumber (optional, string) ... Номер отправления
+
+### /order/cancel [GET]
+
+Команда предназначена для удаления ранее созданного отправления.
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        {
+            "Result": "<true/false>",
+            "Error": "<Описание ошибки>",
+            "ErrorCode": "<Код ошибки: 0 – нет ошибки, -1 - ошибка>"
+        }
+        
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+
+## Group Работа с партиями
+## Отбор списка заказов за временной интервал [/{shipService}/batches/getOrderList/?dateFrom={dateFrom}&dateTo={dateTo}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + dateFrom (optional, string, `01.05.2017`) ... Отбор по датам, начальная дата
+    + dateTo (optional, string, `31.05.2017`) ... Отбор по датам, конечная дата
+
+### /batches/getOrderList [GET]
+
+Команда предназначена для получения списка заказов на доставку зарегестрированых в служме доставки в заданом интервале дат.
+        
+    
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+        
++ Response 200 (application/json)
+        
+        {
+            "Invoices": [
+                {
+                    "CustomerNumber": "<Номер заказа присвоеный магазином>",
+                    "Encloses": [
+                        {
+                            "Description": "<описание вложимого>",
+                            "Measures": [
+                                {
+                                    "Modified": "<дата изменения>"
+                                }
+                            ],
+                            "Statuses <статусы вложимого>": [
+                                {
+                                    "Code": "<код статуса>",
+                                    "Description": "<описание>",
+                                    "Modified": "<дата изменения>"
+                                }
+                            ]
+                        }
+                    ],
+                    "Expirations <дата окончания срока хранения заказа>": [
+                        {
+                            "Date": null,
+                            "Modified": "/Date(1495608132680+0300)/"
+                        }
+                    ],
+                    "Forwards <история перенаправлений>": [],
+                    "Number": "<номер отправления>"
+                }
+           ]
+        }
+        
++ Response 418 (application/json)
+
+        {
+            "error": {
+                "code": "<Код ошибки>",
+                "message": "<Сообщение об ошибке>",
+                "info": [
+                    "<Дополнительная информация>"
+                ]
+            }
+        }
+
+## Формирование этикеток [/{shipService}/batches/getLabel/?dateFrom={dateFrom}&dateTo={dateTo}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + dateFrom (optional, string, `01.05.2017`) ... Отбор по датам, начальная дата
+    + dateTo (optional, string, `31.05.2017`) ... Отбор по датам, конечная дата
+
+### /batches/getLabel [POST]
+
+Команда предназначена для получения этикеток в формате pdf размещаемые на отправлениях. На вход принимается структура, содержащая список номеров отправлений. На выходе массив байт.
+
+    {Пример запроса}
+    
+        [
+            "15935590442"
+        ]
+        
+    
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+    + Body
+
+            [
+                "<номер отправления1>",
+                "<номер отправленияN>"
+            ]
+        
++ Response 200 (application/pdf)
+        
+       
+
+## Создание партии [/{shipService}/batches/create/?dateFrom={dateFrom}&dateTo={dateTo}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + dateFrom (optional, string, `01.08.2017`) ... Отбор по датам, начальная дата
+    + dateTo (optional, string, `31.08.2017`) ... Отбор по датам, конечная дата
+
+### /batches/create [POST]
+
+Команда предназначена для создания реестра и получения номера данного реестра. На вход принимается структура, содержащая список номеров отправлений. На выход выдается список номеров созданных реестров или сообщение об ошибке. Если все отправления создаются с одним типом передачи отправлений и из одного города, то реестр будет 1.
+
+    {Пример запроса}
+    
+        [
+            "15935590442"
+        ]
+        
+    
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+    + Body
+
+            [
+                "<номер отправления1>",
+                "<номер отправленияN>"
+            ]
+        
++ Response 200 (application/json)
+        
+        {
+            "Numbers": [
+                "<номер реестра1>",
+                "<номер реестра2>"
+           ]
+        }
+
+## Получение реестра партии [/{shipService}/batches/getInfo/?invoiceNumber={invoiceNumber}&reestrNumber={reestrNumber}&pickupDate={pickupDate}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + invoiceNumber (optional, string, `15936761063`) ... Номер отправления
+    + reestrNumber (optional, string, `1708100738`) ... Номер партии
+    + pickupDate (optional, string, `18.12.2018`) ... Дата забора
+
+### /batches/getInfo [POST]
+
+Команда предназначена для получения ранее созданного реестра в формате файла (pdf, xls). На вход принимается структура, содержащая номер отправления или номер реестра. Если указанное отправление не содержится ни в одном реестре или нет реестра с указанным номером, вернется соответствующее сообщение.
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/pdf)
+
+## Исключение заказа на доставку из всех партий [/{shipService}/batches/removeOrder/?orderNumber={orderNumber}&invoiceNumber={invoiceNumber}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + orderNumber (optional, string, `НФ-1234`) ... Внутрений номер заказа магазина
+    + invoiceNumber (optional, string) ... Номер отправления
+
+### /batches/removeOrder [GET]
+
+Команда предназначена для удаления отправлений из реестра передачи клиента. Поля «InvoiceNumber» и «orderNumber» взаимоисключающие. Если заполнены поля «InvoiceNumber» и «orderNumber», то будет обработан инвойс с указанным InvoiceNumber, если InvoiceNumber не указан, то будет обработан инвойс с указанным orderNumber. 
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+
++ Response 200 (application/json)
+
+        {
+            "ErrorMessage": "<Описание ошибки>",
+            "ErrorCode": "<Код ошибки: 0 – нет ошибки, -1 - ошибка>"
+        }
+
+## Group Работа с отгрузками
+## Вызов курьера для отгрузки [/{shipService}/allocates/courier/?FIO={FIO}&phone={phone}&date={date}&timeStart={timeStart}&timeEnd={timeEnd}&city={city}&address={address}&number={number}&weight={weight}&ordersDateFrom={ordersDateFrom}&ordersDateTo={ordersDateTo}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + FIO (required, string, `Ганеев Алексей Александгович`) ... Контактное лицо
+    + phone (required, string, `+7 (000) 000-00-00`) ... Контактный телфон
+    + date (required, string, `31.05.2017`) ... Дата отгрузки
+    + timeStart (optional, string, `14:00`) ... Ожидаемое время отгрузки с
+    + timeEnd (optional, string, `15:00`) ... Ожидаемое время отгрузки по
+    + city (optional, string, `Москва`) ... Город отгрузки
+    + address (optional, string, `Красная пл.`) ... Адрес отгрузки
+    + number (optional, string, `5`) ... Количество мест – примерное значение
+    + weight (optional, string, `36`) ... Общий вес, кг. – примерное значение
+    + ordersDateFrom (optional, string, `01.05.2017`) ... Получение количество мест заказов за переиод, начальная дата
+    + ordersDateTo (optional, string, `31.05.2017`) ... Получение количество мест заказов за переиод конечная дата
+
+### /allocates/courier [GET]
+
+Команда предназначена для создания вызова курьера. На вход принимается структура, содержащая описания адреса забора, времени забора, количества мест и общий вес. 
+        
+    
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+        
++ Response 200 (application/json)
+        
+        {
+            "CourierRequestRegistred": "<Признак успешности регистрации вызова курьера (true/false)>",
+            "OrderNumber": "<Номер отгрузки>",
+            "ErrorMessage": "<Описание ошибки>"
+        }
+        
+
+## Отмена отгрузки [/{shipService}/allocates/cancel/?allocateNumber={allocateNumber}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + allocateNumber (required, string, `924-262047`) ... Номер отгрузки
+
+### /allocates/cancel [GET]
+
+Команда предназначена для отмены отгрузки. На вход принимается структура, содержащая номер отгрузки.
+        
+    
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+        
++ Response 200 (application/json)
+        
+        {
+            "OrderNumber": "<Номер заказа>",
+            "Canceled": "<Результат запроса (true/false)>"
+        }
+
+
+## Group Работа с возвратами
+## Регистрация возврата [/{shipService}/returns/create/]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+
+### /returns/create [POST]
+
+Команда предназначена для создания отправления клиентского возврата на основе обычного отправления.
+Если вы хотите предоставить покупателю возможность вернуть вам заказ через постамат, то необходимо зарегистрировать это отправление в системе и сообщить покупателю код для осуществления данной услуги. 
+Покупатель сможет ввести код в меню постамата и заложить отправление для доставки его в магазин.
+Если invoiceNumber или orderId указан, то возврат создается на указное отправление. Иначе создается почтовый возврат.
+
+
+    {Пример запроса}
+    
+
+        [
+            {
+                "Invoice": {
+                    "SenderCode": "НФ-1234",
+                    "Description": "Одежда и Обувь",
+                    "RecipientName": "Тестовый клиент", 
+                    "invoiceNumber": "15935590442",
+                    "MobilePhone": "89120000000",
+                    "Email": "test@test.test",
+                    "Sum": 1000,
+                    "Places": [
+                        {
+                            "Width": "10",
+                            "Height": "10",
+                            "Depth": "10",
+                            "SubEncloses": [
+                                {
+                                    "Line": 1,
+                                    "ProductCode": "12345",
+                                    "name": "Штаны",
+                                    "Price": 750
+                                },
+                                {
+                                    "Line": 2,
+                                    "ProductCode": "12346",
+                                    "name": "Футболка",
+                                    "Price": 250
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+   
+    
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+    + Body
+
+            [
+                {
+                    "Invoice": {
+                        "SenderCode": "<Номер заказа магазина>",
+                        "AccessCode": "<Код закладки>",
+                        "Description": "<Описание отправления, обязательное поле>",
+                        "RecipientName": "<Имя получателя>", 
+                        "invoiceNumber": "<Номер КО в системе (20 символов)>",
+                        "MobilePhone": "<Номер телефона получателя, обязательное поле >",
+                        "Email": "<Адрес электронной почты получателя>",
+                        "Sum": "<Сумма>",
+                        "ClientReturnAddress": "<Адрес клиентского возврата, если не указано, берется из котракта>"
+                        {
+                            "CityName": "<Название города, обязательное поле >",
+                            "RegionName": "<Название региона>",
+                            "Address": "<Текстовое описание адреса, обязательное поле >",
+                            "FIO": "<ФИО контактного лица>",
+                            "PostCode": "<Почтовый индекс>",
+                            "Organisation": "<Наименование организации>",
+                            "PhoneNumber": "<Контактный телефон, обязательное поле>",
+                            "Comment": "<Комментарий>"
+                        },
+                        "Places": [
+                            {
+                                "BarCode": "<Штрих код от системы. Отправляйте поле пустым, в ответ будет ШК >",
+                                "GCBarCode": "<Клиентский штрих-код. Поле не обязательное. Можно не отправлять >",
+                                "Width": "<Ширина>",
+                                "Height": "<Высота>",
+                                "Depth": "<Глубина>",
+                                "SubEncloses": "<Субвложимые>"
+                                [
+                                    {
+                                        "Line": "<Номер>",
+                                        "ProductCode": "<Код продукта>",
+                                        "GoodsCode": "<Код товара>",
+                                        "name": "<Наименование>",
+                                        "Price": "<Стоимость>"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        
++ Response 200 (application/json)
+        
+        {
+            "CreatedSendings":
+                [
+                    {
+                        "EDTN": "< Значение идентификатора запроса >",
+                        "ReturnCode": "<Код для возврата отправления на постамате>",
+                        "invoiceNumber": "<Номер отправления присвоенный системой>",
+                        "Places":
+                        [
+                            {
+                                "GCBarCode": "<Клиентский номер ШК>",
+                                "Barcode": "<Штрих код системы>"
+                            }
+                        ]
+                    }
+                ],
+            "RejectedSendings":
+            [
+                {
+                    "EDTN": "< Значение идентификатора запроса >",
+                    "ErrorCode": "<Код ошибки>",
+                    "ErrorMessage": "<Описание ошибки>"
+                }
+            ]
+        }
+        
+       
+
+
+
+## Получение списка возвратных отправлений [/{shipService}/returns/getReturnsList/?dateFrom={dateFrom}&dateTo={dateTo}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + dateFrom (optional, string, `01.08.2017`) ... Отбор по датам, начальная дата
+    + dateTo (optional, string, `31.08.2017`) ... Отбор по датам, конечная дата
+
+### /returns/getReturnsList [GET]
+
+Команда предназначена для получения списка возвратных отправлений, которые покупатель возвращает или вернул в магазин через постамат. В запросе отправляется идентификатор сессии и интервал дат, за которые необходимо получить список. В ответ возвращается список отправлений с параметрами, либо ошибка.
+        
+    
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+        
++ Response 200 (application/json)
+        
+        {
+            SendingsInfo:
+            [
+                {
+                    "invoiceNumber": "<номер отправления в системе>",
+                    "SenderInvoiceNumber": "<номер отправления, введенный получателем>",
+                    "Barcode": "<штрих-код>",
+                    "ConsultantNumber": "<номер консультанта, если был указан>",
+                    "DateOfCreate": "<дата создания отправления>",
+                    "PhoneNumber": "<номер телефона, введенный покупателем (отправителем)>",
+                    "ReturnReason": "<указанная причина возврата>"
+                }
+            ],
+            "Error": "<описание ошибки>"
+        }
+
+## Получение информации по возвратным отправлениям [/{shipService}/returns/getInfo/?dateFrom={dateFrom}&dateTo={dateTo}]
+
++ Parameters
+    + shipService (required, string, `pickpoint`) ... Название службы доставки
+    + dateFrom (optional, string, `01.08.2017`) ... Отбор по датам, начальная дата
+    + dateTo (optional, string, `31.08.2017`) ... Отбор по датам, конечная дата
+
+### /returns/getInfo [GET]
+
+Команда предназначена для получения номера возвратной накладной и, если есть, номера акта возврата.
+
+    {Пример запроса}
+    
+        [
+            "15935590442"
+        ]
+        
+    
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Basic dGVzdDp0ZXN0
+    + Body
+
+            [
+                "<номер отправления1>",
+                "<номер отправленияN>"
+            ]
+        
++ Response 200 (application/json)
+        
+        {
+            "SessionId": "<уникальный идентификатор сессии (GUID 16 байт)>", 
+            "ReturnInvoices":
+            [
+                {
+                    "invoiceNumber": "<номер отправления в системе>",
+                    "ReturnInvoiceNumber": "<номер отправления магазина (присвойка)>",
+                    "ReturnDocumentNumber": "<номер акта возврата товара>",
+                    "ReturnBarcodes":
+                    [
+                        "<штрих-код отправления>",
+                        "<штрих-код отправления>"
+                    ]
+                }
+            ],
+            "ErrorCode": "<Код ошибки: 0 – нет ошибки, -1 - ошибка>",
+            "ErrorMessage": "<Описание ошибки>"
+        }
